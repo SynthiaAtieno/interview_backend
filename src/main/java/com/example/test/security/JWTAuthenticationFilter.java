@@ -39,7 +39,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         String message = "";
         try {
-            LoginDto creds = new ObjectMapper().readValue(req.getInputStream(), LoginDto.class);
+            LoginDto creds = new LoginDto();
             String username = creds.getUsername();
             String password = creds.getPassword();
 
