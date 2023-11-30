@@ -31,43 +31,50 @@ public class TransactionController {
 
     @PostMapping("deposit")
     public GenericResponse deposit(@RequestBody TransactionDto transactionDto) {
-        Optional<Wallet> walletOptional = transactionService.findById(transactionDto.getUser());
-        if (walletOptional.isPresent()) {
-            Wallet wallet = walletOptional.get();
-            var amount = (wallet.getBalance() != null ? wallet.getBalance() : 0) + transactionDto.getAmount();
-            wallet.setBalance(amount);
+        if (transactionDto != null) {
+            Optional<Wallet> walletOptional = transactionService.findById(transactionDto.getUser());
+            if (walletOptional.isPresent()) {
+                Wallet wallet = walletOptional.get();
+                var amount = (wallet.getBalance() != null ? wallet.getBalance() : 0) + transactionDto.getAmount();
+                wallet.setBalance(amount);
 
-            transactionService.save(wallet);
-
-            return new GenericResponse(200, "Deposit Successful");
-        }else{
-            Optional<Users> usersOptional = userService.findById(transactionDto.getUser());
-            if(usersOptional.isPresent()){
-                Wallet wallet = new Wallet();
-                wallet.setBalance(transactionDto.getAmount());
-                wallet.setUsers(usersOptional.get());
                 transactionService.save(wallet);
+
+                return new GenericResponse(200, "Deposit Successful");
             }else{
-                throw new NotFoundException("User not found");
+                Optional<Users> usersOptional = userService.findById(transactionDto.getUser());
+                if(usersOptional.isPresent()){
+                    Wallet wallet = new Wallet();
+                    wallet.setBalance(transactionDto.getAmount());
+                    wallet.setUsers(usersOptional.get());
+                    transactionService.save(wallet);
+                }else{
+                    throw new NotFoundException("User not found");
+                }
+                return new GenericResponse(200, "Deposit Successful");
             }
-            return new GenericResponse(200, "Deposit Successful");
         }
 
+        return new GenericResponse(400, "please fill all the details");
     }
 
     @PostMapping("withdraw")
     public GenericResponse withdraw(@RequestBody TransactionDto transactionDto) {
-        Optional<Wallet> walletOptional = transactionService.findById(transactionDto.getUser());
-        if (walletOptional.isPresent()) {
-            Wallet wallet = walletOptional.get();
-            var amount = (wallet.getBalance() != null ? wallet.getBalance() : 0) - transactionDto.getAmount();
-            wallet.setBalance(amount);
+        if (transactionDto != null){
+            Optional<Wallet> walletOptional = transactionService.findById(transactionDto.getUser());
+            if (walletOptional.isPresent()) {
+                Wallet wallet = walletOptional.get();
+                var amount = (wallet.getBalance() != null ? wallet.getBalance() : 0) - transactionDto.getAmount();
+                wallet.setBalance(amount);
 
-            transactionService.save(wallet);
+                transactionService.save(wallet);
 
-            return new GenericResponse(200, "Withdraw Successful");
+                return new GenericResponse(200, "Withdraw Successful");
+            }
+            throw new NotFoundException("User not found");
         }
-        throw new NotFoundException("User not found");
+
+        return new GenericResponse(400, "please fill all the details");
     }
 }
 

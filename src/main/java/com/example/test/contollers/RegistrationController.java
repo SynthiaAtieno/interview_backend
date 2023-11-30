@@ -28,19 +28,22 @@ public class RegistrationController {
 
     @PostMapping
     public RegisterResponse register(@RequestBody RegistrationDto registrationDto) {
-        Optional<Users> userOp = userService.findByEmail(registrationDto.getEmail());
-        if (userOp.isEmpty()) {
-            Users user = new Users();
-            user.setName(registrationDto.getName());
-            user.setEmail(registrationDto.getEmail());
-            user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-            user.setRole(Role.ROLE_USER);
-            user.setStatus("PENDING");
-            Users response = userService.save(user);
+        if (registrationDto.getEmail() != null && registrationDto.getName() != null && registrationDto.getPassword() != null){
+            Optional<Users> userOp = userService.findByEmail(registrationDto.getEmail());
+            if (userOp.isEmpty()) {
+                Users user = new Users();
+                user.setName(registrationDto.getName());
+                user.setEmail(registrationDto.getEmail());
+                user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
+                user.setRole(Role.ROLE_USER);
+                user.setStatus("PENDING");
+                Users response = userService.save(user);
 
-            return new RegisterResponse(200, "Registration Successful", response);
-        } else return new RegisterResponse(432, "User with email already exist", userOp.get());
+                return new RegisterResponse(200, "Registration Successful", response);
+            } else return new RegisterResponse(432, "User with email already exist", userOp.get());
 
+        }
+        return new RegisterResponse(432, "Please fill all the fields", null);
     }
 }
 
