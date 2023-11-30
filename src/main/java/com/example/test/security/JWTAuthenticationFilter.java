@@ -39,7 +39,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         String message = "";
         try {
-            LoginDto creds = new LoginDto();
+            LoginDto creds = new ObjectMapper().readValue(req.getInputStream(), LoginDto.class);
             String username = creds.getUsername();
             String password = creds.getPassword();
 
@@ -51,6 +51,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>()));
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             log.warn("Authentication failed for hostname {} Ip address: {}", req.getLocalName(), req.getLocalAddr());
             res.setStatus(401);
             try {
