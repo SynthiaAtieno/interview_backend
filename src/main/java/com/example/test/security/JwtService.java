@@ -53,7 +53,7 @@ public class JwtService {
 				.builder()
 				.setClaims(extraClaims)
 				.setSubject(username)
-				.setExpiration(Date.from(now.plusHours(SecurityConstants.EXPIRATION_TIME_HOURS)
+				.setExpiration(Date.from(now.plusSeconds(SecurityConstants.EXPIRATION_TIME_MINUTES)
 						.atZone(ZoneId.systemDefault()).toInstant()))
 				.setIssuedAt(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()))
 				.signWith(getSignInKey(), SignatureAlgorithm.HS256)
