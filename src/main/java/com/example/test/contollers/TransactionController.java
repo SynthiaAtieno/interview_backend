@@ -5,9 +5,11 @@ import com.example.test.dto.TransactionDto;
 import com.example.test.entities.Users;
 import com.example.test.entities.Wallet;
 import com.example.test.enums.Role;
+import com.example.test.exception.BadRequestException;
 import com.example.test.exception.NotFoundException;
 import com.example.test.response.GenericResponse;
 import com.example.test.response.RegisterResponse;
+import com.example.test.response.WalletResponse;
 import com.example.test.service.transactions.TransactionService;
 import com.example.test.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,7 @@ public class TransactionController {
 
 
     @PostMapping("deposit")
-    public GenericResponse deposit(@RequestBody TransactionDto transactionDto) {
+    public WalletResponse deposit(@RequestBody TransactionDto transactionDto) {
         if (transactionDto != null) {
             Optional<Wallet> walletOptional = transactionService.findById(transactionDto.getUser());
             if (walletOptional.isPresent()) {
@@ -40,7 +42,7 @@ public class TransactionController {
 
                 transactionService.save(wallet);
 
-                return new GenericResponse(200, "Deposit Successful");
+                return new WalletResponse(200, "Deposit Successful", amount);
             }else{
                 Optional<Users> usersOptional = userService.findById(transactionDto.getUser());
                 if(usersOptional.isPresent()){
@@ -51,30 +53,35 @@ public class TransactionController {
                 }else{
                     throw new NotFoundException("User not found");
                 }
-                return new GenericResponse(200, "Deposit Successful");
+                return new WalletResponse(200, "Deposit Successful", null);
             }
         }
 
-        return new GenericResponse(400, "please fill all the details");
+        return new WalletResponse(400, "please fill all the details", null);
     }
 
     @PostMapping("withdraw")
-    public GenericResponse withdraw(@RequestBody TransactionDto transactionDto) {
+    public WalletResponse withdraw(@RequestBody TransactionDto transactionDto) {
         if (transactionDto != null){
             Optional<Wallet> walletOptional = transactionService.findById(transactionDto.getUser());
             if (walletOptional.isPresent()) {
                 Wallet wallet = walletOptional.get();
-                var amount = (wallet.getBalance() != null ? wallet.getBalance() : 0) - transactionDto.getAmount();
-                wallet.setBalance(amount);
+                if(wallet.getBalance() != null && wallet.getBalance() >= transactionDto.getAmount()){
+                    var amount = wallet.getBalance() - transactionDto.getAmount();
+                    wallet.setBalance(amount);
 
-                transactionService.save(wallet);
+                    transactionService.save(wallet);
 
-                return new GenericResponse(200, "Withdraw Successful");
+                    return new WalletResponse(200, "Withdraw Successful", amount);
+                }else{
+                    throw new BadRequestException("You don't have sufficient funds  to withdraw "+transactionDto.getAmount());
+                }
+
             }
             throw new NotFoundException("User not found");
         }
 
-        return new GenericResponse(400, "please fill all the details");
+        return new WalletResponse(400, "please fill all the details", null);
     }
 }
 

@@ -44,7 +44,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             String password = creds.getPassword();
 
             var userOp = userService.findByEmail(username);
-            if(userOp.isEmpty())message = "Username incorrect please check and retry";
+            if(userOp.isEmpty())message = "Incorrect email please check and retry";
             else{
                 message = "Password incorrect";
             }

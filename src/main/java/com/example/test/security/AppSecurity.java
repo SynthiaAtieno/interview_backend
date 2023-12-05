@@ -44,7 +44,7 @@ public class AppSecurity {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register/**").permitAll()
                         .anyRequest().authenticated())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilter(authFilter)
                 .addFilterAfter(new JWTAuthorizationFilter(userDetailsService, jwtService), JWTAuthenticationFilter.class);
 
